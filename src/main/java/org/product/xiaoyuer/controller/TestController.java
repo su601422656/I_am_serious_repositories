@@ -28,10 +28,7 @@ public class TestController {
     @RequestMapping(value = "/get_cookie")
     @ResponseBody
     public String getCookie(@CookieValue("code") String code) {
-
         System.out.println(code);
-
-
         return "get cookie";
 
     }

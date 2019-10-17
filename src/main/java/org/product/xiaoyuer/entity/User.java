@@ -8,13 +8,13 @@ import java.util.Date;
 @Repository
 public class User {
 
-  private long id;
+  private int id;
   private String username;
   private String password;
   private String salt;
   private String email;
-  private long type;
-  private long status;
+  private int type;
+  private int status;
   private String activationCode;
   private String headerUrl;
 
@@ -29,11 +29,11 @@ public class User {
   private Date createTime;
 
 
-  public long getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(int id) {
     this.id = id;
   }
 
@@ -74,20 +74,20 @@ public class User {
   }
 
 
-  public long getType() {
+  public int getType() {
     return type;
   }
 
-  public void setType(long type) {
+  public void setType(int type) {
     this.type = type;
   }
 
 
-  public long getStatus() {
+  public int getStatus() {
     return status;
   }
 
-  public void setStatus(long status) {
+  public void setStatus(int status) {
     this.status = status;
   }
 

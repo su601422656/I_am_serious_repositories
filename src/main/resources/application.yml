@@ -45,3 +45,7 @@ page:
 xiaoyuer:
   path:
     domian: localhost:8080/
+#serverProperties
+server:
+  servlet:
+    context-path: /xiaoyuer

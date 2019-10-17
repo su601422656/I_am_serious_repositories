@@ -1,7 +1,9 @@
 package org.product.xiaoyuer.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.product.xiaoyuer.dao.LoginTicketMappper;
 import org.product.xiaoyuer.dao.UserMapper;
+import org.product.xiaoyuer.entity.LoginTicket;
 import org.product.xiaoyuer.entity.User;
 import org.product.xiaoyuer.util.MailClient;
 import org.product.xiaoyuer.util.XiaoyuerConstant;
@@ -26,8 +28,12 @@ public class UserService implements XiaoyuerConstant {
     @Autowired
     private TemplateEngine templateEngine;
 
+
     @Autowired
     private MailClient mailClient;
+
+    @Autowired
+    private LoginTicketMappper loginTicketMappper;
 
     @Value("${xiaoyuer.path.domian}")
     private String domian;
@@ -115,12 +121,57 @@ public class UserService implements XiaoyuerConstant {
     public int activation(int userId, String code) {
         User user = userMapper.findUserById(userId);
         if (user.getStatus() == 1) {
-            return ACTICATION_REPEAT;
+            return ACTIVATION_REPEAT;
         } else if (user.getActivationCode().equals(code)) {
             userMapper.updateStatus(1,userId);
             return ACTIVATION_SUCCESS;
         }else {
             return ACTIVATION_FAILURE;
         }
+
+
+    }
+    public Map<String,Object> login(String username,String password,int expiredSeconds){
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "账号不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空");
+            return map;
+        }
+        User user = userMapper.findUserByUserName(username);
+        if (user == null) {
+            map.put("usernameMsg", "用户名不存在");
+            return map;
+        }
+        if (user.getStatus()!=1) {
+            map.put("usernameMsg", "账号未激活");
+            return map;
+        }
+        password = XiaoyuerUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "密码错误");
+            return map;
+        }
+        //生成登陆凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(XiaoyuerUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds * 1000));
+        loginTicketMappper.insertLoginTicket(loginTicket);
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+    //退出登陆
+    public void logout(String ticket) {
+        loginTicketMappper.updateStatus(ticket, 1);
+
+    }
+
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMappper.selectByTicket(ticket);
     }
 }
