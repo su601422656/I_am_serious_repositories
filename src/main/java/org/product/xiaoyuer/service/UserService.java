@@ -174,4 +174,21 @@ public class UserService implements XiaoyuerConstant {
     public LoginTicket findLoginTicket(String ticket) {
         return loginTicketMappper.selectByTicket(ticket);
     }
+
+
+    //修改密码
+    public Map<String,Object> updatePassword(int userId, String oldPassword, String newPassword) {
+        Map<String, Object> map = new HashMap<>();
+        User user = userMapper.findUserById(userId);
+        String password = XiaoyuerUtil.md5(oldPassword + user.getSalt());
+        if (!(password.equals(user.getPassword()))) {
+            map.put("errorMsg", "旧密码不正确");
+            return map;
+        } else {
+            newPassword = XiaoyuerUtil.md5(newPassword + user.getSalt());
+            userMapper.updatePassword(newPassword, userId);
+
+        }
+        return map;
+    }
 }

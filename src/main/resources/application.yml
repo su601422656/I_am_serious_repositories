@@ -45,6 +45,7 @@ page:
 xiaoyuer:
   path:
     domian: localhost:8080/
+    upload: /Users/suyafei/Desktop
 #serverProperties
 server:
   servlet:
